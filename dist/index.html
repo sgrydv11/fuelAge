@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FuelTrack · Vehicle Mileage & Fuel Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="stylesheet" href="style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js"></script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<header><div class="shell bar flex items-center justify-between gap-3"><a class="brand" href="./"><span class="brand-icon" data-icon="fuel"></span>FuelTrack</a><button id="garage" class="ghost"><span data-icon="car"></span> Garage</button></div></header>
+<main class="shell">
+<section class="intro flex flex-wrap items-end justify-between gap-4">
+<div><div class="eyebrow">FUEL JOURNAL</div><h1>Mileage overview</h1><p>Track your fill-ups and see how far your fuel takes you.</p></div>
+<div class="actions flex flex-wrap gap-2"><select id="vehicle" aria-label="Active vehicle"></select><button id="addLog" class="primary">＋ Add fuel log</button></div>
+</section>
+<p id="notice" role="status" hidden></p>
+<div id="dashboard">
+<section id="cards" aria-label="Mileage summary"></section>
+<div class="details">
+<section class="panel trend"><div class="panel-head"><div><h2>Mileage trend</h2><p>Last 10 calculated fill-ups</p></div><span id="metric" class="pill"></span></div><div id="chart"></div></section>
+<section class="panel history"><div class="panel-head"><div><h2>Fuel history</h2><p id="count"></p></div><span data-icon="history" class="subtle"></span></div><div id="history"></div></section>
+</div>
+</div>
+<footer class="flex flex-wrap justify-between gap-3"><span>Vehicle data and photos are saved in this browser.</span><button id="clear" class="link">Clear Sample Data</button></footer>
+</main>
+<dialog id="editor"></dialog><dialog id="photoDialog" aria-label="Attached photo"></dialog>
+</body></html>

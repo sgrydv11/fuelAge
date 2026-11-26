@@ -1,0 +1,9 @@
+.android-build/
+.gradle/
+**/build/
+**/local.properties
+.openai/
+*.apk
+*.jks
+*.keystore
+__pycache__/
