@@ -172,7 +172,7 @@ function logForm(v,log) {
     scan.disabled=scanning;
   };
   refresh();
-  if (photo) status.textContent='Drag over the odometer digits to select a region, or read the whole photo.';
+  if (photo) status.textContent='Drag around just the odometer digits, leaving a small margin. Exclude the trip meter.';
   function point(event) {
     const box=preview.getBoundingClientRect();
     return [Math.min(1,Math.max(0,(event.clientX-box.left)/box.width)),Math.min(1,Math.max(0,(event.clientY-box.top)/box.height))];
@@ -217,7 +217,7 @@ function logForm(v,log) {
       photo=image;
       crop=undefined;
       refresh();
-      status.textContent='Photo attached. Drag over odometer digits to select a region, or read the whole photo.';
+      status.textContent='Photo attached. For odometers, drag around just the digits with a small margin.';
     } catch {status.textContent='Could not open this image. Try a JPEG, PNG, or another supported photo.';}
     finally {loading=false;save.disabled=false;e.target.value='';}
   };
@@ -237,7 +237,9 @@ function logForm(v,log) {
       }
       status.textContent=Object.values(result).some(Number.isFinite)
         ? 'Review the extracted values before saving.'
-        : 'No matching numbers found. Try a closer photo or enter the values manually.';
+        : result.ambiguous
+          ? 'More than one reading is possible. Select just the odometer digits and scan again.'
+          : 'No reading found. Try a straight, close photo with the odometer digits selected.';
     } catch {if (photo===source) status.textContent='Photo reading failed. You can enter the values manually.';}
     finally {scanning=false;($('scanButton') ?? scan).disabled=false;}
   };

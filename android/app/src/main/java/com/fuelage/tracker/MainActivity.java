@@ -90,7 +90,8 @@ public final class MainActivity extends Activity {
                 case "/index.html": mime = "text/html"; break;
                 case "/app.js":
                 case "/mileage.js":
-                case "/ocr.js": mime = "text/javascript"; break;
+                case "/ocr.js":
+                case "/segments.js": mime = "text/javascript"; break;
                 case "/style.css": mime = "text/css"; break;
                 default: return unavailable();
             }

@@ -21,7 +21,7 @@ Mileage uses distance divided by the fuel added after one full fill-up through t
 
 ## Android app
 
-FuelAge bundles the tracker, camera/file picker, and the Google ML Kit Latin text model. Vehicle history and photos stay on the device. The Android scanner works with a close-up or a selected region of digital or mechanical odometer digits. It can also read fuel receipt text. The Python YOLOv8/EasyOCR integration above is available separately for the web app.
+FuelAge bundles the tracker, camera/file picker, and the Google ML Kit Latin text model. Vehicle history and photos stay on the device. For the best reading, take a straight close-up and select only the odometer digits, leaving a small margin. FuelAge uses a dedicated seven-segment decoder for cropped digital displays and ML Kit for general OCR, including mechanical digits. If the readers disagree, the app leaves the reading for you to confirm or enter. It can also read fuel receipt text. The Python YOLOv8/EasyOCR integration above is available separately for the web app.
 
 To install, open the locally built FuelAge APK on an Android 7.0 or newer device with an updated Android System WebView. Android may ask you to allow installation from the app opening the APK. The local APK is signed with the Android debug key.
 

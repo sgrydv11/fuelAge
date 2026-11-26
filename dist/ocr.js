@@ -1,3 +1,5 @@
+import {readSegments} from './segments.js';
+
 const number = raw => {
   const token=raw.replace(/\s/g,'');
   if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(token)) return Number(token.replace(/,/g,''));
@@ -8,9 +10,11 @@ export function parseScan(text,mode,unit) {
   const digits='([0-9]+(?:[.,][0-9]+)*)';
   const labeled=new RegExp('(?:\\bodometer\\b|\\bodo\\b|\\bmileage\\b)\\s*[:=]?\\s*'+digits,'i').exec(text);
   if (mode==='meter') {
-    const reading=labeled?.[1] ?? text.split(/\r?\n/).map(line=>line.trim())
-      .find(line=>/^\d+(?:[.,]\d+)*(?:\s*(?:km|mi))?$/i.test(line))?.match(/^\d+(?:[.,]\d+)*/)?.[0];
-    return {odo:reading ? number(reading):undefined};
+    if (labeled) return {odo:number(labeled[1])};
+    const candidates=[...new Set(text.split(/\r?\n/)
+      .map(line=>line.trim().match(/^(\d+(?:[.,]\d+)*)(?:\s*(?:km|mi))?$/i)?.[1])
+      .filter(Boolean).map(number).filter(Number.isFinite))];
+    return candidates.length===1 ? {odo:candidates[0]} : {ambiguous:candidates.length>1};
   }
   const units={L:'l|ltr|ltrs|liters?|litres?',gal:'gal|gallons?',kg:'kg|kilograms?',kWh:'kwh'};
   const lines=text.split(/\r?\n/).filter(line=>!/(?:\/|per\s*)\s*(?:l\b|ltr|gal|kg|kwh|litre|liter)/i.test(line));
@@ -59,9 +63,34 @@ function scanOnAndroid(photo,crop) {
   });
 }
 
+async function scanSegments(photo,crop) {
+  const img=new Image();
+  img.src=photo;
+  await img.decode();
+  const {left,top,width,height}=crop;
+  const scale=Math.min(1,640/Math.max(width,height));
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(width*scale));
+  canvas.height=Math.max(1,Math.round(height*scale));
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  ctx.drawImage(img,left,top,width,height,0,0,canvas.width,canvas.height);
+  return readSegments(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);
+}
+
 let worker;
 export async function scanImage(photo,mode,unit,crop) {
-  if (window.FuelAgeAndroid) return parseScan(await scanOnAndroid(photo,crop),mode,unit);
+  const segments=mode==='meter' && crop ? await scanSegments(photo,crop) : undefined;
+  if (window.FuelAgeAndroid) {
+    try {
+      const result=parseScan(await scanOnAndroid(photo,crop),mode,unit);
+      if (segments!==undefined && result.odo!==undefined && segments!==result.odo) return {ambiguous:true};
+      return segments===undefined ? result : {odo:segments};
+    } catch (error) {
+      if (segments!==undefined) return {odo:segments};
+      throw error;
+    }
+  }
+  if (segments!==undefined) return {odo:segments};
   if (mode==='meter' && !crop) {
     try {
       const available=await fetch('/api/odometer',{method:'HEAD',signal:AbortSignal.timeout(3000)});
